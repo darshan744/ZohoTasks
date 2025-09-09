@@ -18,20 +18,23 @@ maptags() {
 
         mappedTags[$major]+="$tag "
     done
+    unset IFS
 }
-
+selectedMajorVersionTags=()
 selectTag() {
     echo "Select major version:"
-    select major in "${!mappedTags[@]}"; do
+    select major in "${!mappedTags[@]}"; do #!associative array takes the keys and prints it
         if [ -n "$major" ]; then
-            echo "You selected major=${mappedTags[$major]}"
+            # echo "You selected major=${mappedTags[$major]}"
+            local majorVersionTags=${mappedTags[$major]}
+            selectedMajorVersionTags=($majorVersionTags)
             break
         fi
     done
 }
 
-
-
-
 maptags ${tags[@]}
 selectTag
+echo "-----------------------------------------------------------------------------"
+echo "${selectedMajorVersionTags[@]}" # always refer arrays using ${var[@]}
+echo "${selectedMajorVersionTags[2]}"
