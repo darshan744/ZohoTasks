@@ -21,8 +21,8 @@ echo "CleanVersion : $cleanVersion"
 IFS="_" read -r major minor path <<< $cleanVersion
 
 
-pgsqlAlias="pgsql"
-
+pgsqlAlias="pgsql_${major}_${minor}"
+unset IFS
 startPgsql="${pgsqlAlias}_start"
 stopPgsql="${pgsqlAlias}_stop"
 statusPgsql="${pgsqlAlias}_status"

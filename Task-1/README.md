@@ -40,12 +40,17 @@
 - Should check whether its already installed and prompt the user to ask to leave it or overwrite it
 - Write an alias to run the pgsql that's been installed
 
-#### The script:
-- There are some predefined variables like postgres location and build directory
-- It first requests the user to select a major version
-- Then again the corressponding tags for Release is listed to select
-- After selection a pre built exist in the declared directory then prompts the user to overwrite or not 
-- If needed to overwrite then the server is stopped and then its built from the source
-- Then after installing and setup aliases are set in the .bashrc file based on the version selected 
-ex:`pgsql_16_0` for version `REL_16_0`
-- We are responsible for sourcing the file to be able to use path.
+- `build_postgres.sh` 
+    - builds the source.
+    - source is declared as current directory 
+        - to modify change the `postgres_source_directory`
+    - build directory is  `~/Documents/build`
+        - to modify change the `targetParentDirectory`
+    - initializes the directories needed like data directory
+- `start.sh`
+    - checks whether already pg is running 
+    - if not then starts the server 
+    - then asks the user for a database name
+    - sets a alias in .bashrc for us
+    - then we can call pgsql 'dbname' to run pgsql
+    - before that we need to source our .bashrc file (because every script runs in a subshell meaning its sourced in that session(shell) so to source it completely to entire system we have to source it mannualy)

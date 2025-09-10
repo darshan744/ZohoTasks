@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # postgres source code
-postgres_source_directory=$HOME/dev/ZohoTasks/Task-1/postgres
+postgres_source_directory=$(pwd)/postgres
 
 # all build directory
 targetParentDirectory=$HOME/Documents/builds
