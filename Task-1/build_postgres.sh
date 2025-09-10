@@ -2,17 +2,20 @@
 
 # postgres source code
 postgres_source_directory=$HOME/dev/ZohoTasks/Task-1/postgres
+
 # all build directory
 targetParentDirectory=$HOME/Documents/builds
+
 # executing dir
 currentDir=$(pwd)
+
+# If source doesn't exist
 if [ -d $postgres_source_directory ];then
     echo "Source directory in $postgres_source_directory"
 else
     echo "Source directory not found"
     exit 1
 fi
-
 
 if [ ! -d $targetParentDirectory ]; then
     echo "Build directory not found creating it in $targetParentDirectory"
@@ -48,6 +51,8 @@ maptags() {
     # need to unset for any other uses 
     unset IFS
 }
+
+
 # To store the filtered tags
 selectedMajorVersionTags=()
 
@@ -73,19 +78,32 @@ select version in "${selectedMajorVersionTags[@]}"; do  # always refer arrays us
     break
 done
 
+buildDirectory="$targetParentDirectory/$version"
 
 compileSourceCode() {
     echo "Removing build directory if exist"
 
-    rm -rf "$buildDirectory"
+    logfile="$buildDriectory/data/logfile"
+
+    # This only works if the overwriting build is the one running 
+    # "$buildDirectory/bin/pg_ctl" -D "$buildDirectory/data" stop
+    # So we have predefined a bunch of variable in the .bashrc file 
+    # we can use that to start stop status of the pgsql 
+
+    # echo "Stopping pgdata"
+    if [ -d $buildDirectory ];then
+        rm -rf "$buildDirectory"
+    fi
+
 
     # make sure our source code is clean
     cd "$postgres_source_directory"
+    distCleanLogLocation="$currentDir/distclean.log"
+    echo "Running make distclean please watch logs in $distCleanLogLocation"
 
-    make distclean
+    make distclean >> "$distCleanLogLocation"
 
     cd "$currentDir"
-
 
     echo "Switching to version $version"
     # switch to a different tag in the source code
@@ -102,8 +120,10 @@ compileSourceCode() {
     echo "Entering $postgres_source_directory"
     cd "$postgres_source_directory"
 
+    configureLogLocation="$currentDir/configure.log"
+    echo "Running configure script please watch the logs in the $configureLogLocation"
     # run the configuration script and pass the target directory for the build
-    if  ./configure --prefix="$buildDirectory"; then
+    if  ./configure --prefix="$buildDirectory" > $configureLogLocation 2>&1 ; then
         echo "Configuration of source code completed successfully"
     else
         echo "Configuring the source code failed. Please check the error message in above"
@@ -111,13 +131,13 @@ compileSourceCode() {
     fi
 
     echo "Compiling the source code"
-
+    makeLog="$currentDir/make.log"
     # make command compiles the source code to binary
     # make install compiles and then moves the compiled binaries to the
     # specified location
     # But if we do that using this then we may get an error
     # So by doing this we can find the error in compilation process or in moving the binaries
-    if make;then
+    if make > "$makeLog" 2>&1;then
         echo "Compilation successfull"
     else 
         echo "Compilation failed look for error log above"
@@ -126,10 +146,11 @@ compileSourceCode() {
 
     echo "Running make install command"
 
+    makeInstallLogLocation="$currentDir/makeinstall.log"
     # run the make command
     # it installs the compiled binary to the directory
     # we passed in the --prefix command in ./configure
-    if make install;then
+    if make install > $makeInstallLogLocation 2>&1;then
         echo "Installation successfull"
         echo "Postgres installed in the directory $targetParentDirectory/$version"
     else
@@ -138,28 +159,27 @@ compileSourceCode() {
         exit 1
     fi
 }
-
+compiled=0
 askUserInputForExistinBuild() {
     while true; do
         read -p "Do you want to re-install the built source (y/n)? " choice
         case "$choice" in
             y|Y)
+                # echo "Yes command"
                 compileSourceCode
                 break
                 ;;
             n|N)
                 echo "Skipping compilation process"
+                compiled=1
                 break
                 ;;
             *)
-                echo "Invalid option, please enter y or n"
+                echo "Invalid option please enter y or n"
                 ;;
         esac
     done
 }
-
-
-buildDirectory="$targetParentDirectory/$version"
 
 if [ -d $buildDirectory ]; then
     echo "Build Directory already exist"
@@ -168,22 +188,12 @@ else
    compileSourceCode
 fi
 
+
 binPath="$targetParentDirectory/$version/bin"
-pgdataDirectory="$targetParentDirectory/$version/data"
+pgdataDirectory="$buildDirectory/data"
 
-echo "Creating data directory for Postgres version : $version"
-
-if mkdir -p "$pgdataDirectory";then
-    echo "Directory created successfully"
-else 
-    echo "Directory creation failed"
-    exit 1
-fi
 
 initdb="$binPath/initdb"
-pg_ctl="$binPath/pg_ctl"
-createDB="$binPath/createdb"
-psql="$binPath/psql"
 
 checkBinaryExistOrNot() {
     if [ ! -f $1 ];then
@@ -191,13 +201,10 @@ checkBinaryExistOrNot() {
         exit 1;
     fi
 }
+
 # check the existence of the binaries
 checkBinaryExistOrNot $initdb
-checkBinaryExistOrNot $pg_ctl
-checkBinaryExistOrNot $createDB
-checkBinaryExistOrNot $psql
 
-logFileLocation="$pgdataDirectory/logfile"
 echo "Setting the db storage path"
 if $initdb -D $pgdataDirectory;then
     echo "Successfully registered the directory"
@@ -206,23 +213,5 @@ else
     exit 1
 fi
 
-echo "Setting the logfile"
-if  $pg_ctl -D $pgdataDirectory -l $logFileLocation start ; then
-    echo "Successfully setted up the logfile and server is started"
-else 
-    echo "Logfile assignment failed"
-    exit 1
-fi
-
-echo "Creating a test db"
-if [ $createDB test ]; then
-    echo "Created a test database in the postgres"
-else 
-    echo "Setting up database failed"
-    exit 1
-fi
-
-echo "Exiting dir"
-cd "$currentDir"
-
-echo "Run `$pgsql test` to run the postgres command line tool"
+echo "Postgres version : $version has been compiled and instaled in the $binPath"
+echo "Run the start script to initialize postgres and run the server"
