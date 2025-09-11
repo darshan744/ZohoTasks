@@ -48,9 +48,13 @@
         - to modify change the `targetParentDirectory`
     - initializes the directories needed like data directory
 - `start.sh`
-    - checks whether already pg is running 
+    - checks whether already pg is running in the default port
     - if not then starts the server 
     - then asks the user for a database name
-    - sets a alias in .bashrc for us
-    - then we can call pgsql 'dbname' to run pgsql
-    - before that we need to source our .bashrc file (because every script runs in a subshell meaning its sourced in that session(shell) so to source it completely to entire system we have to source it mannualy)
+    - sets a alias in .bashrc for us then we should run `source .bashrc` to source it.
+    - then we can call pgsql_majorVersion_minorVersion 'dbname' to run pgsql
+- `stop.sh`
+    - Takes a version tag as input
+    - checks for the status of that server
+    - if running it stops it
+    
