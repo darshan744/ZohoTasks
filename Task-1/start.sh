@@ -2,8 +2,13 @@
 
 targetParentDirectory="$HOME/Documents/builds"
 
-
 port=5432
+
+
+read -p "Enter the build version of pg (e.g : REL_16_0): " version
+
+echo $version
+
 
 handlePort(){
     while true; do
@@ -18,13 +23,10 @@ handlePort(){
 }
 
 if lsof -i :$port > /dev/null 2>&1;then
-    echo "Postgres is running in port $port"
+    echo "It seems the port is already in use : $port"
     handlePort
 fi
 
-read -p "Enter the build version of pg (e.g : REL_16_0): " version
-
-echo $version
 
 buildDirectory="$targetParentDirectory/$version/"
 

@@ -14,6 +14,8 @@ if [ -d $postgres_source_directory ];then
     echo "Source directory in $postgres_source_directory"
 else
     echo "Source directory not found"
+    echo "Cloning the directory from github"
+    git clone https://github.com/postgres/postgres
     exit 1
 fi
 
