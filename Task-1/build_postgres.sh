@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+# This script clones a postgres repo if its not found in the 
+# running directory.
+
 # postgres source code
 postgres_source_directory=$(pwd)/postgres
 
