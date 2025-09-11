@@ -110,6 +110,7 @@ echo "Setting the alias in the .bashrc"
 
 if ./set_alias.sh "$version" "$buildDirectory";then
     echo ".bashrc alias is set"
+    source ~/.bashrc
 else
     echo "Couldn't set alias in bashrc"
 fi

@@ -218,4 +218,4 @@ else
 fi
 
 echo "Postgres version : $version has been compiled and instaled in the $binPath"
-echo "Run the start script to initialize postgres and run the server"
+echo "Run 'source start.sh' to initialize postgres and run the server"
