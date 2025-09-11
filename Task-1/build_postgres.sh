@@ -1,8 +1,7 @@
 #!/bin/bash
 
-
 # This script clones a postgres repo if its not found in the 
-# running directory.
+# running directory. Please be mindfull on where its being created
 
 # postgres source code
 postgres_source_directory=$(pwd)/postgres
@@ -20,7 +19,6 @@ else
     echo "Source directory not found"
     echo "Cloning the directory from github"
     git clone https://github.com/postgres/postgres
-    exit 1
 fi
 
 if [ ! -d $targetParentDirectory ]; then
