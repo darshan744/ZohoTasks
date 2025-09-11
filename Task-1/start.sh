@@ -118,4 +118,4 @@ cleanVersion=${cleanVersion#REL}
 
 IFS="_" read -r major minor path <<< $cleanVersion
 
-echo "Run 'pgsql_${major}_${minor} $dbname' to run the postgres command line tool"
+echo "Run  source ~/.bashrc and then run 'pgsql_${major}_${minor} $dbname' to run the postgres command line tool"
