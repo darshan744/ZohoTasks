@@ -66,7 +66,7 @@ standby_down() {
     if [ -d $currentEmptyDirectory ];then
         rm -rf $currentEmptyDirectory;
     fi
-    
+
     $psql --port=$currentMasterPort postgres -c "select pg_drop_replication_slot('replica_slot')"
 
     $pg_basebackup -h localhost -U repuser --checkpoint=fast -D $currentEmptyDirectory -R --slot=replica_slot -C --port=$currentMasterPort
@@ -103,9 +103,7 @@ monitor(){
         else 
             echo "No problem in slave server" >> slave.log
         fi
-
         sleep 0.5
-
     done
 }
 

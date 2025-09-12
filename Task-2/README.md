@@ -13,3 +13,9 @@
 - After that specify the rule in the pg_hba.conf and restart the primary server
 - Then create another node (slave) using `pg_basebackup` with specifying the directory
 - Then start the server using `pg_ctl` with specific port
+
+## Automate failover and recovery
+- Use `pg_isready` to check the status of the server
+- for every 500ms run `pg_isready` for primary and standby
+- when primary is down promote the standby and assign a standby for the new primary
+- when standby is down create another new standby and assign to primary
