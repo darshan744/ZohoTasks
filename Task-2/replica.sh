@@ -2,8 +2,8 @@
 
 # consts
 binaryDirectory=$HOME/Documents/builds/REL_16_1/bin
-masterDataDirectory=$HOME/Documents/MasterDB
-slaveDataDirectory=$HOME/Documents/ReplicaDB
+masterDataDirectory=$HOME/Documents/Node1
+slaveDataDirectory=$HOME/Documents/Node2
 masterPort=3000
 slavePort=3001
 repuser=repuser
