@@ -4,7 +4,6 @@ targetParentDirectory="$HOME/Documents/builds"
 
 port=5432
 
-
 read -p "Enter the build version of pg (e.g : REL_16_0): " version
 
 echo $version

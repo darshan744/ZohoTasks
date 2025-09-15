@@ -31,13 +31,13 @@ check_ready() {
     $pg_isready --port=$1 -d postgres >> /dev/null 2>&1;
 }
 
-
 swap_primary_and_standby_ports() {
     local port=$currentMasterPort
     currentMasterPort=$currentStandbyPort
     currentStandbyPort=$currentFreePort
     currentFreePort=$port
 }
+
 swap_primary_and_standby_directories() {
     local dir=$currentMasterDirectory;
     currentMasterDirectory=$currentStandbyDirecotry
@@ -68,8 +68,6 @@ master_down() {
     echo "Currently free : $currentEmptyDirectory"
 
 }
-
-
 
 standby_down() {
     

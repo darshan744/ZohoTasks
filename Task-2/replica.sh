@@ -7,6 +7,8 @@ slaveDataDirectory=$HOME/Documents/Node2
 masterPort=3000
 slavePort=3001
 repuser=repuser
+loginUser=darshan
+loginPassword=12345
 
 removeAndCreate() {
     if [ -d $1 ];then
@@ -14,6 +16,7 @@ removeAndCreate() {
         mkdir $1
     fi
 }
+
 removeAndCreate $masterDataDirectory
 removeAndCreate $slaveDataDirectory
 
@@ -26,6 +29,7 @@ initdb=$binaryDirectory/initdb
 pg_ctl=$binaryDirectory/pg_ctl
 psql=$binaryDirectory/psql
 pg_backup=$binaryDirectory/pg_basebackup
+
 echo "Initializing master Directory : $masterDataDirectory"
 $initdb -D $masterDataDirectory
 
@@ -34,8 +38,13 @@ if ! $pg_ctl -D $masterDataDirectory -o "-p $masterPort" start;then
     echo "Master Server starting failed"
     exit 1
 fi
+echo "Creating login user"
+if ! $psql --port=$masterPort -c "create user $loginUser with replication password '$loginPassword' createrole" $databaseName >> replica.log;then
+    echo "Creation of login user failed"
+    exit 1;
+fi
 
-if ! $psql --port=$masterPort -c "CREATE USER $repuser replication" $databaseName;then
+if ! $psql --port=$masterPort -U $loginUser -c "CREATE USER $repuser replication" $databaseName >> replica.log;then
     echo "Create user failed"
     exit 1
 fi
@@ -45,22 +54,25 @@ echo "$hba_confLine" >> $hba_conf_file
 
 echo "Restarting master server"
 
-if ! $pg_ctl -D $masterDataDirectory reload;then
+if ! $pg_ctl -D $masterDataDirectory reload >> replica.log;then
     echo "Restarting of master server failed"
     exit 1
 fi
 
 # --slot is for telling the primary that i am connecting throug this name 
-# without this primary doesn't know how much this standby has read 
+#   without this primary doesn't know how much this standby has read 
 # -R -> replica
 # -C is for create that slot automatically
 # --port -> the data incoming port
 
-if ! $pg_backup -h localhost -U $repuser --checkpoint=fast -D $slaveDataDirectory -R --slot=replica_slot -C --port=$masterPort;then
+echo "Configuring standby server"
+
+if ! $pg_backup -h localhost -U $repuser --checkpoint=fast -D $slaveDataDirectory -R --slot=replica_slot -C --port=$masterPort >> replica.log;then
     echo "Running pg_backup failed"
     exit 1;
 fi
 
+echo "Running standby server"
 if ! $pg_ctl -D $slaveDataDirectory -o "-p $slavePort" start; then
     echo "Slave server running failed"
 fi
