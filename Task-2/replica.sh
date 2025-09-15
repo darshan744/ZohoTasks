@@ -9,6 +9,7 @@ slavePort=3001
 repuser=repuser
 loginUser=darshan
 loginPassword=12345
+
 removeAndCreate() {
     if [ -d $1 ];then
         rm -rf $1
