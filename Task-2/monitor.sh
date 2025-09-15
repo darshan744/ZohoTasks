@@ -27,6 +27,10 @@ if [ ! -f $pg_isready ];then
     exit 1;
 fi
 
+check_ready() {
+    $pg_isready --port=$1 -d postgres >> /dev/null 2>&1;
+}
+
 
 swap_primary_and_standby_ports() {
     local port=$currentMasterPort
@@ -42,13 +46,19 @@ swap_primary_and_standby_directories() {
 }
 
 master_down() {
+    echo "Promoting standby....."
     $pg_ctl -D $currentStandbyDirecotry promote
+    # change the current master service port to the standby which was promoted
     swap_primary_and_standby_ports
 
     if [ -d $currentEmptyDirectory ];then
         rm -rf $currentEmptyDirectory
     fi
     
+    # since we are swapping there might be a chance that 
+    # the replication_name can be in already use
+    # so we are deleting that replication name and create with same name
+    $psql --port=$currentMasterPort postgres -c "select pg_drop_replication_slot('replica_slot')"
     $pg_basebackup -h localhost -U repuser --checkpoint=fast -D $currentEmptyDirectory -R --slot=replica_slot -C --port=$currentMasterPort
     $pg_ctl -D $currentEmptyDirectory -o "-p $currentStandbyPort" start
     swap_primary_and_standby_directories
@@ -84,24 +94,21 @@ standby_down() {
 
 
 monitor(){
-
     while true;do
-
-        $pg_isready --port=$currentMasterPort -d postgres >> /dev/null 2>&1;
+        check_ready $currentMasterPort
+        # $pg_isready --port=$currentMasterPort -d postgres >> /dev/null 2>&1;
 
         if [ $? -ne 0 ];then
             echo  "$(date) - [ERROR] Master server is down"
             master_down
-        else
-            echo "No problem in Master" >> master.log
         fi
 
-        $pg_isready --port=$currentStandbyPort -d postgres >> /dev/null 2>&1;
+        check_ready $currentStandbyPort
+
+        # $pg_isready --port=$currentStandbyPort -d postgres >> /dev/null 2>&1;
         if [ $? -ne 0 ];then
             echo "$(date) - [ERROR] Slave server is down"
             standby_down
-        else 
-            echo "No problem in slave server" >> slave.log
         fi
         sleep 0.5
     done
