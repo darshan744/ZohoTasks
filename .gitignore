@@ -1,5 +1,5 @@
 Task-1/postgres
 Task-1/builds/
-Task-1/*\.log
+Task-[1-9]/*\.log
 Task-1/configure.log
 Task-1/dummy.sh
