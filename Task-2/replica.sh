@@ -9,7 +9,6 @@ slavePort=3001
 repuser=repuser
 loginUser=darshan
 loginPassword=12345
-
 removeAndCreate() {
     if [ -d $1 ];then
         rm -rf $1
@@ -31,20 +30,23 @@ psql=$binaryDirectory/psql
 pg_backup=$binaryDirectory/pg_basebackup
 
 echo "Initializing master Directory : $masterDataDirectory"
-$initdb -D $masterDataDirectory
+if ! $initdb -D $masterDataDirectory >> replica.log 2>&1;then 
+    echo "Init db failed"
+    exit 1
+fi
 
 echo "Master Starting server"
-if ! $pg_ctl -D $masterDataDirectory -o "-p $masterPort" start;then 
+if ! $pg_ctl -D $masterDataDirectory -o "-p $masterPort" start >> replica.log 2>&1;then 
     echo "Master Server starting failed"
     exit 1
 fi
 echo "Creating login user"
-if ! $psql --port=$masterPort -c "create user $loginUser with replication password '$loginPassword' createrole" $databaseName >> replica.log;then
+if ! $psql --port=$masterPort -c "create user $loginUser with replication password '$loginPassword' createrole" $databaseName >> replica.log 2>&1;then
     echo "Creation of login user failed"
     exit 1;
 fi
 
-if ! $psql --port=$masterPort -U $loginUser -c "CREATE USER $repuser replication" $databaseName >> replica.log;then
+if ! $psql --port=$masterPort -U $loginUser -c "CREATE USER $repuser replication" $databaseName >> replica.log 2>&1;then
     echo "Create user failed"
     exit 1
 fi
@@ -54,10 +56,11 @@ echo "$hba_confLine" >> $hba_conf_file
 
 echo "Restarting master server"
 
-if ! $pg_ctl -D $masterDataDirectory reload >> replica.log;then
+if ! $pg_ctl -D $masterDataDirectory reload >> replica.log 2>&1;then
     echo "Restarting of master server failed"
     exit 1
 fi
+echo "Master server running in port $masterPort"
 
 # --slot is for telling the primary that i am connecting throug this name 
 #   without this primary doesn't know how much this standby has read 
@@ -66,13 +69,14 @@ fi
 # --port -> the data incoming port
 
 echo "Configuring standby server"
-
-if ! $pg_backup -h localhost -U $repuser --checkpoint=fast -D $slaveDataDirectory -R --slot=replica_slot -C --port=$masterPort >> replica.log;then
+if ! $pg_backup -h localhost -U $repuser --checkpoint=fast -D $slaveDataDirectory -R --slot=replica_slot -C --port=$masterPort >> replica.log 2>&1;then
     echo "Running pg_backup failed"
     exit 1;
 fi
 
 echo "Running standby server"
-if ! $pg_ctl -D $slaveDataDirectory -o "-p $slavePort" start; then
+if ! $pg_ctl -D $slaveDataDirectory -o "-p $slavePort" start >> replica.log 2>&1; then
     echo "Slave server running failed"
+    exit 1
 fi
+echo "Standby server running in port $slavePort"
