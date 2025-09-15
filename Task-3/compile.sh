@@ -10,7 +10,7 @@ makeLog=$(pwd)/make.log
 makeInstallLog=$(pwd)/makeinstall.log
 
 # Master and Replica Directories and port
-masterDirectory=$HOME/Documents/Auto/Node1
+masterDirectory=$HOME/Documents/Auto/Node
 masterPort=3000
 baseReplicaDirectoryString=$HOME/Documents/Auto/Node
 slavePort=3001
@@ -29,6 +29,13 @@ fi
 version=$1
 numberOfReplicas=$2
 tags=($(git -C $postgres_source_directory tag))
+
+
+if [ $# -ne 2 ];then
+    echo "Illegal number of arguments"
+    echo "[USAGE] ./compile.sh <version-tag> <number-of-replicas>" 
+    exit
+fi
 
 
 find_if_tag_exist() {
@@ -84,7 +91,72 @@ compile_postgres() {
 }
 
 set_replicas() {
+
+    if [ -d $masterDirectory ];then
+        rm -r $masterDirectory
+    fi
+
+
+    initdb=$buildDirectory/$version/bin/initdb
+    pg_ctl=$buildDirectory/$version/bin/pg_ctl
+    psql=$buildDirectory/$version/bin/psql
+    pg_backup=$buildDirectory/$version/bin/pg_basebackup
+
+    # hba_conf
+    hba_confLine="host  replication repuser   127.0.0.1/32     trust"
+    hba_conf_file=$masterDirectory/pg_hba.conf
+
+    echo "[INFO] Initializing Master Directory"
     
+    if ! $initdb -D $masterDirectory> replica.log 2>&1;then
+        echo "[ERROR] Couldn't initialize the Master database"
+        exit 1
+    fi
+
+    echo "[INFO] Starting master server"
+
+    if ! $pg_ctl -D $masterDirectory -o "-p $masterPort" start >> replica.log 2>&1;then
+        echo "Starting of master server failed"
+        exit 1
+    fi
+echo "[INFO] Creating a replication user"
+    if ! $psql --port=$masterPort -c "create user repuser replication" postgres >> replica.log 2>&1;then
+        echo "Couldn't create user repuser"
+        exit 1
+    fi
+
+    echo $hba_confLine >> $hba_conf_file
+
+    echo "[INFO] Restarting the master server"
+
+    if ! $pg_ctl -D $masterDirectory reload >> replica.log 2>&1;then
+        echo "Restarting the master server failed"
+        exit 1
+    fi
+
+    echo "[INFO] Master server running in port $masterPort"
+
+    echo "[INFO] Configuring standby server"
+
+    for ((i=1 ; i<=$numberOfReplicas;i++));do
+        slotName="rep_slot_$i"
+        slaveDirectory="${baseReplicaDirectoryString}$i"
+        if [ -d $slaveDirectory ];then
+            rm -rf $slaveDirectory;
+        fi
+        if ! $pg_backup -h localhost -U repuser --checkpoint=fast -D $slaveDirectory -R --slot=$slotName -C --port=$masterPort >> replica.log 2>&1;then
+            echo "Configuring Standby server for dir : $slaveDirectory , port : $slavePort failed"
+            exit 1;
+        fi
+
+        if ! $pg_ctl -D $slaveDirectory -o "-p $slavePort" start >> replica.log;then
+            echo "Starting the standby server for dir :$slaveDirectory , port : $slavePort failed"
+            exit 1;
+        fi
+        ((slavePort++))
+    done
+    echo "[SUCCESS] Successfully configured the server for Replicas $numberOfReplicas"
 }
 
-# compile_postgres
+compile_postgres
+set_replicas
