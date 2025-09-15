@@ -36,7 +36,7 @@ psql=$binaryDirectory/psql
 pg_backup=$binaryDirectory/pg_basebackup
 
 echo "Initializing master Directory : $masterDataDirectory"
-if ! $initdb -D $masterDataDirectory -A md5 --username=$superUser --pwfile=password.txt >> replica.log 2>&1;then 
+if ! $initdb -D $masterDataDirectory -A md5 --username=$superUser --pwfile=password.txt > replica.log 2>&1;then 
     echo "Init db failed"
     exit 1
 fi
@@ -51,6 +51,7 @@ if ! PGPASSWORD=$(cat $(pwd)/password.txt) $psql --port=$masterPort -U $superUse
     echo "Creation of login user failed"
     exit 1;
 fi
+
 echo "Creating replica user"
 if ! PGPASSWORD=$loginPassword  $psql --port=$masterPort -U $loginUser -c "CREATE USER $repuser with replication password '$repUserPassword'" $databaseName >> replica.log 2>&1;then
     echo "Create user failed"
