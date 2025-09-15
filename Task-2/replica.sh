@@ -13,7 +13,6 @@ loginUser=darshan
 loginPassword=12345
 
 superUser=darshank
-superUserPassword=123456789
 
 removeAndCreate() {
     if [ -d $1 ];then
