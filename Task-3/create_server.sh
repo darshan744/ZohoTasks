@@ -79,6 +79,7 @@ compile_postgres() {
         echo "Successfully switched $version"
     else
         echo "Couldn't switch branch/ Tags"
+        exit 1
     fi
 
     echo "[INFO] Running make distclean please watch logs at $distCleanLogs"
