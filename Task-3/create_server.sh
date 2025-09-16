@@ -107,6 +107,7 @@ compile_postgres() {
         echo "[ERROR] Make install failed please look at logs"
         exit 1
     fi
+    echo "[SUCCESS] Installation Successfull"
 }
 
 must_have_binary() {
@@ -154,7 +155,7 @@ set_master_server() {
         exit 1
     fi
 
-    echo "[INFO] Master server running in port $masterPort"
+    echo "[SUCCESS] Master server running in port $masterPort"
 
 }
 
