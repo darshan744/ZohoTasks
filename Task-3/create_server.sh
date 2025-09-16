@@ -56,13 +56,15 @@ find_if_tag_exist() {
 }
 
 check_input() {
-    if [ $# -ne 2 ];then
+    echo "$version"
+    echo "$numberOfReplicas"
+    if [ -z "$version" ] || [ -z "$numberOfReplicas" ];then
         echo "Illegal number of arguments"
         echo "[USAGE] ./create_server.sh <version-tag> <number-of-replicas>" 
         exit 1
     fi
 
-    if printf -- '%d' "$numberOfReplicas" > /dev/null 2>&1;then
+    if ! printf -- '%d' "$numberOfReplicas" > /dev/null 2>&1;then
         echo "Please enter a valid number of replicas"
         exit 1;
     fi
@@ -108,7 +110,7 @@ compile_postgres() {
 }
 
 must_have_binary() {
-    if [ -f $1 ];then
+    if [ ! -f $1 ];then
         echo "[ERROR] The file $1 is not found"
         exit 1
     fi
