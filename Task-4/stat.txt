@@ -1,0 +1,22 @@
+# started on Wed Sep 17 11:16:19 2025
+
+
+ Performance counter stats for './duckdb /home/darshan-pt7976/dev/ZohoTasks/Task-4/test.db -c pragma tpch(13)':
+
+         26,901.90 msec task-clock                       #   13.833 CPUs utilized             
+             7,017      context-switches                 #  260.837 /sec                      
+               781      cpu-migrations                   #   29.031 /sec                      
+           248,050      page-faults                      #    9.221 K/sec                     
+    66,070,086,728      cycles                           #    2.456 GHz                       
+     9,968,724,579      stalled-cycles-frontend          #   15.09% frontend cycles idle      
+    24,476,779,282      instructions                     #    0.37  insn per cycle            
+                                                  #    0.41  stalled cycles per insn   
+     4,211,406,890      branches                         #  156.547 M/sec                     
+       136,452,515      branch-misses                    #    3.24% of all branches           
+
+       1.944799983 seconds time elapsed
+
+      23.669394000 seconds user
+       3.216356000 seconds sys
+
+

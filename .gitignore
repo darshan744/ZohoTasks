@@ -4,3 +4,7 @@ Task-[1-9]/*\.log
 Task-1/configure.log
 Task-1/dummy.sh
 Task-3/postgres
+Task-4/duckdb
+**/*\.db
+Task-4/perf.data
+Task-4/performance.txt
