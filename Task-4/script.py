@@ -4,6 +4,7 @@ import sys
 import subprocess as sp
 import os
 from collections import Counter
+import json
 
 duckDb="/home/darshan-pt7976/dev/ZohoTasks/Task-4/duckdb/build/release/duckdb"
 databaseFile = "/home/darshan-pt7976/dev/ZohoTasks/Task-4/test.db"
@@ -22,6 +23,11 @@ else:
     print("Please pass the query number to be executed")
     exit(1)
 
+# stats dict
+jsonData = {}
+
+
+jsonData['query_number'] = queryNumber
 
 print(f"[INFO] Running query specified {queryNumber}")
 
@@ -96,17 +102,23 @@ def parseReportFile():
             # replace percentage to make it float
             l[0] = l[0].replace('%' , '')
             if len(l) > 3:
-                # in symbol `[.]` is replaced by splitting and the new line at last is removed 
+                # in symbol `[.]` is replaced by splitting and the new line at last is removed
+                # these symbol tells us what space they are running 
+                # [.] -> user space
+                # [k] -> kernel space 
                 symbolSplit = l[3].split(None , 1)
                 l[3] = symbolSplit[1].replace('\n','')
                 l.append(symbolSplit[0])
             # creating a dataobject for storing
+            l[3] = l[3].split('(')[0]
             record = DataRecord(overhead=float(l[0]), command=l[1] , sharedObject=l[2] ,symbol=l[3] ,space=l[4])
             dataRecords.append(record)
             
 parseReportFile()
 
-print("The hottest function is : " , dataRecords[0].symbol)    
+
+jsonData['hottest_function'] = dataRecords[0].symbol
+# print("The hottest function is : " , dataRecords[0].symbol)    
 
 counter = Counter()
 def maximumRanFunction():
@@ -114,7 +126,10 @@ def maximumRanFunction():
         counter[record.symbol]+=1
     # most_common(1) lists the passed number of keys to give back
     # we need the most common one hence only one so we pass one
-    print("Most common Function that was executed is : " , counter.most_common(1))
+    # we get a tuple inside a list 
+    # [('func name' , repetition_times)]
+    jsonData['common_function'] = counter.most_common(1)[0][0]
+    # print("Most common Function that was executed is : " , counter.most_common(1))
 
 # most called function findings
 maximumRanFunction()
@@ -138,13 +153,17 @@ totalTimeRan = findTotalTimeRan()
 topHotspotFunctions = dataRecords[0:3]
 
 def calculateHotFunctionTimings():
+    hotFunctions = []
     for record in topHotspotFunctions:
         currentRecordRanTime = (totalTimeRan * record.overhead) / 100
         currentRecordRanTime = currentRecordRanTime * 1000
-        print(f"The function {record.symbol} ran for total of {currentRecordRanTime} ms.")
+        hotFunctions.append({ 'name' : record.symbol , 'time' : currentRecordRanTime })
+        # print(f"The function {record.symbol} ran for total of {currentRecordRanTime} ms.")
+    jsonData['top_functions_timings'] = hotFunctions
 
 calculateHotFunctionTimings()
 
+# user and kernel space timing calculation
 def findTimeSpentOnEachSpace():
     length = len(dataRecords)
     userSpaceCount = 0
@@ -157,8 +176,12 @@ def findTimeSpentOnEachSpace():
     userSpacePercentage = userSpaceCount / length * 100
     kernelSpacePercentage = kernelSpaceCount / length * 100
 
-    print("User space time spent percentage : " , userSpacePercentage , " %")
-
-    print("Kernel space time spent percentage : " , kernelSpacePercentage , " %")
+    jsonData['user_space_time_spent_percentage'] = userSpacePercentage
+    # print("User space time spent percentage : " , userSpacePercentage , " %")
+    jsonData['kernel_space_time_spent_percentage'] = kernelSpacePercentage
+    # print("Kernel space time spent percentage : " , kernelSpacePercentage , " %")
 
 findTimeSpentOnEachSpace()
+
+with open('stats.json' , 'w') as file:
+    json.dump(jsonData , file , indent=4)

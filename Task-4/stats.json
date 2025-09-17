@@ -1,0 +1,21 @@
+{
+    "query_number": 13,
+    "hottest_function": "duckdb::JoinHashTable::GetRowPointers",
+    "common_function": "duckdb::ExpressionExecutor::Execute",
+    "top_functions_timings": [
+        {
+            "name": "duckdb::JoinHashTable::GetRowPointers",
+            "time": 381.9092337377999
+        },
+        {
+            "name": "duckdb::GroupedAggregateHashTable::FindOrCreateGroupsInternal",
+            "time": 220.711218672
+        },
+        {
+            "name": "duckdb_fsst_decompress",
+            "time": 147.2065003107
+        }
+    ],
+    "user_space_time_spent_percentage": 51.667902149740556,
+    "kernel_space_time_spent_percentage": 48.33209785025945
+}

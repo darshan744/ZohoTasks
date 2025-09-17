@@ -1,22 +1,22 @@
-# started on Wed Sep 17 12:54:43 2025
+# started on Wed Sep 17 14:02:01 2025
 
 
- Performance counter stats for '/home/darshan-pt7976/dev/ZohoTasks/Task-4/duckdb/build/release/duckdb /home/darshan-pt7976/dev/ZohoTasks/Task-4/test.db -c pragma tpch(9)':
+ Performance counter stats for '/home/darshan-pt7976/dev/ZohoTasks/Task-4/duckdb/build/release/duckdb /home/darshan-pt7976/dev/ZohoTasks/Task-4/test.db -c pragma tpch(13)':
 
-         22,946.06 msec task-clock                       #    8.638 CPUs utilized             
-            38,800      context-switches                 #    1.691 K/sec                     
-             3,475      cpu-migrations                   #  151.442 /sec                      
-           447,744      page-faults                      #   19.513 K/sec                     
-   104,146,205,824      cycles                           #    4.539 GHz                       
-    16,842,331,809      stalled-cycles-frontend          #   16.17% frontend cycles idle      
-    34,315,505,192      instructions                     #    0.33  insn per cycle            
-                                                  #    0.49  stalled cycles per insn   
-     5,567,654,096      branches                         #  242.641 M/sec                     
-       174,985,537      branch-misses                    #    3.14% of all branches           
+         23,583.89 msec task-clock                       #   11.968 CPUs utilized             
+            21,889      context-switches                 #  928.134 /sec                      
+             1,608      cpu-migrations                   #   68.182 /sec                      
+           244,065      page-faults                      #   10.349 K/sec                     
+    79,978,352,800      cycles                           #    3.391 GHz                       
+    11,683,102,855      stalled-cycles-frontend          #   14.61% frontend cycles idle      
+    25,981,910,851      instructions                     #    0.32  insn per cycle            
+                                                  #    0.45  stalled cycles per insn   
+     4,542,993,509      branches                         #  192.631 M/sec                     
+       142,039,473      branch-misses                    #    3.13% of all branches           
 
-       2.656264473 seconds time elapsed
+       1.970635881 seconds time elapsed
 
-      18.471648000 seconds user
-       4.295364000 seconds sys
+      20.477307000 seconds user
+       2.996994000 seconds sys
 
 
