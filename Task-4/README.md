@@ -1,9 +1,11 @@
 # TASK 4
-- Now it takes a number argument to run the tpch query
-- runs perf on the query execution
+- Runs `perf` on all the `tpch` queries
 - Generates stats using `perf stat` and `perf record`
 - After that some analysis is done it , it gives us : 
     - Mostly called function
     - Top 3 function's execution time in `ms`
     - Function which used most of the time
     - Time spent on user-space and kernel space
+    - overall analysis :
+        - Most common function in all queries
+        - Function that took most time

@@ -99,14 +99,15 @@ def parseReportFile():
             dataRecords.append(record)
     return dataRecords
              
-def mostCalledFunction(counter = Counter()):
+def mostCalledFunction():
+    counter = Counter()
     for record in dataRecords:
         counter[record.symbol]+=1
     # most_common(1) gives us back the a list of tuples and 1 means it gives us only the first one
     # we need the most common one hence only one so we pass one
     # we get a tuple inside a list 
     # [('func name' , repetition_times)]
-    jsonData['common_function'] = counter.most_common(1)[0][0]
+    jsonData['common_function'] = {'name' : counter.most_common(1)[0][0] , 'count' : counter.most_common(1)[0][1]}
 
 # find the specifc time with time elapsed
 # Split the time 
@@ -184,19 +185,21 @@ def overAllMostCommonFunction():
     for stat in allStats:
         commonFunc = stat['common_function']
         counter[commonFunc] += 1
-    overallStats['most_common_function'] = counter.most_common(1)[0][0]
-
+    commonFunc = counter.most_common(1)[0][0]
+    
+    overallStats['most_common_function'] = { 'name' : counter.most_common(1)[0][0] , 'count' : counter.most_common(1)[0][1]}
 
 def mostTimeSpentFunction():
     time = 0
     maxFun = ''
+    queryNumber = 0
     for stat in allStats:
         for topFunc in stat['top_functions_timings']:
             if topFunc['time'] > time:
                 time = topFunc['time']
                 maxFun = topFunc['name']
-    overallStats['max_execution_time_function'] = {'name' : maxFun , 'time' : time}
-
+                queryNumber = stat['queryNumber']
+    overallStats['max_execution_time_function'] = {'name' : maxFun , 'time' : time , 'queryNumber' : queryNumber}
 
 def mostSpaceSpentQuery():
     userSpace = 0
@@ -240,7 +243,6 @@ def totalTimeRanCalculation():
     
     overallStats['max_time_spent_query_number'] = {'queryNumber' : maxQuery , 'time' : max}
     overallStats['min_time_spent_query_number'] = {'queryNumber' : minQuery , 'time':min}    
-
 
 def writeOverallStat():
     with open('overall.json' , 'w') as file:
