@@ -1,10 +1,64 @@
 #!/usr/bin/env python3
 
+import sys
 import subprocess as sp
 import os
 from collections import Counter
-reportFile="report.txt"
-statFile="stat.txt"
+
+duckDb="/home/darshan-pt7976/dev/ZohoTasks/Task-4/duckdb/build/release/duckdb"
+databaseFile = "/home/darshan-pt7976/dev/ZohoTasks/Task-4/test.db"
+recordFile="/home/darshan-pt7976/dev/ZohoTasks/Task-4/perf.data"
+reportFile="/home/darshan-pt7976/dev/ZohoTasks/Task-4/report.txt"
+statFile="/home/darshan-pt7976/dev/ZohoTasks/Task-4/stat.txt"
+
+queryNumber = 1
+if len(sys.argv) > 1:
+    qn = int(sys.argv[1])
+    if qn > 22:
+        print("Please enter a valid query number between 1 and 22")
+        exit(1)
+    queryNumber = qn
+else:
+    print("Please pass the query number to be executed")
+    exit(1)
+
+
+print(f"[INFO] Running query specified {queryNumber}")
+
+def runQuery():
+    try:
+        command = f'sudo perf stat -o {statFile} {duckDb} {databaseFile} -c \'pragma tpch({queryNumber})\''
+        print(f'[INFO] Running command {command}')
+        sp.run(command, shell=True , check=True ,capture_output=True)
+        print(f'[INFO] stat command ran successfully')
+    except sp.CalledProcessError as e:
+        print("[ERROR] stat Comand failed : " , e.stderr)
+
+    try:
+        command = f'sudo perf record -o {recordFile} {duckDb} {databaseFile} -c \'pragma tpch({queryNumber})\''
+        print(f'[INFO] Running command {command}')
+        sp.run(command, shell=True , check=True ,capture_output=True)
+        print(f'[INFO] record command ran successfully')
+    except sp.CalledProcessError as e:
+        print("[ERROR] Record Comand failed : " , e.stderr)
+    try:
+        command = f'sudo perf report --stdio > {reportFile}'
+        print(f'[INFO] Running command {command}')
+        sp.run(command, shell=True , check=True ,capture_output=True)
+        print('[INFO] Report command ran successfully')
+    except sp.CalledProcessError as e:
+        print(f"[ERROR] --stdio failed {e.stderr}")
+        exit(1)
+
+
+runQuery()
+
+print('[SUCCESS] Queries ran successfully')
+print('[INFO] Running analysis on the reports generated')
+
+########################################
+#      Parsing and statistics          #
+########################################
 
 class DataRecord:
     overhead:float
@@ -25,7 +79,6 @@ class DataRecord:
         return f"Overhead : {self.overhead} , Command : {self.command} , SharedObject : {self.sharedObject} , Symbol : {self.symbol}"
 
 dataRecords : list[DataRecord] = []
-
 
 def parseReportFile():
     with open(reportFile) as file:
@@ -52,7 +105,9 @@ def parseReportFile():
             dataRecords.append(record)
             
 parseReportFile()
+
 print("The hottest function is : " , dataRecords[0].symbol)    
+
 counter = Counter()
 def maximumRanFunction():
     for record in dataRecords:
@@ -75,6 +130,8 @@ def findTotalTimeRan():
             splits = line.strip().split(None)
             return float(splits[0])
         return 0
+
+print('[INFO] Ran to check total time spent by top 3 functions')
 
 totalTimeRan = findTotalTimeRan()
 
