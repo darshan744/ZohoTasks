@@ -1,0 +1,25 @@
+{
+    "queryNumber": 2,
+    "overhead_function": "duckdb::JoinHashTable::GetRowPointers",
+    "common_function": {
+        "name": "duckdb::Checksum",
+        "count": 2
+    },
+    "total_time_ran": 198.068007,
+    "top_functions_timings": [
+        {
+            "name": "duckdb::JoinHashTable::GetRowPointers",
+            "time": 16.459451381700003
+        },
+        {
+            "name": "clear_page_erms",
+            "time": 13.1517156648
+        },
+        {
+            "name": "void duckdb::FilterSelectionSwitch<long>",
+            "time": 12.3792504375
+        }
+    ],
+    "user_space_time_spent_percentage": "48.792270531400966%",
+    "kernel_space_time_spent_percentage": "51.20772946859904%"
+}

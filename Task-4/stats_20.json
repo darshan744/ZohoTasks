@@ -1,0 +1,25 @@
+{
+    "queryNumber": 20,
+    "overhead_function": "clear_page_erms",
+    "common_function": {
+        "name": "duckdb::Vector::Vector",
+        "count": 4
+    },
+    "total_time_ran": 733.067276,
+    "top_functions_timings": [
+        {
+            "name": "clear_page_erms",
+            "time": 64.6565337432
+        },
+        {
+            "name": "duckdb::JoinHashTable::GetRowPointers",
+            "time": 49.848574768000006
+        },
+        {
+            "name": "_copy_to_iter",
+            "time": 41.198380911200005
+        }
+    ],
+    "user_space_time_spent_percentage": "49.11792014856082%",
+    "kernel_space_time_spent_percentage": "50.88207985143919%"
+}

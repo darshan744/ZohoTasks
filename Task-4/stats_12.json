@@ -1,0 +1,25 @@
+{
+    "queryNumber": 12,
+    "overhead_function": "duckdb_fastpforlib::internal::__fastunpack12",
+    "common_function": {
+        "name": "duckdb::ExpressionExecutor::Execute",
+        "count": 5
+    },
+    "total_time_ran": 398.900644,
+    "top_functions_timings": [
+        {
+            "name": "duckdb_fastpforlib::internal::__fastunpack12",
+            "time": 45.19544296520001
+        },
+        {
+            "name": "clear_page_erms",
+            "time": 33.028973323200006
+        },
+        {
+            "name": "duckdb::JoinHashTable::GetRowPointers",
+            "time": 23.814368446800003
+        }
+    ],
+    "user_space_time_spent_percentage": "50.474183350895686%",
+    "kernel_space_time_spent_percentage": "49.52581664910432%"
+}

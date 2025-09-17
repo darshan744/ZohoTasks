@@ -1,0 +1,25 @@
+{
+    "queryNumber": 17,
+    "overhead_function": "void duckdb::FilterSelectionSwitch<long>",
+    "common_function": {
+        "name": "duckdb::Vector::Vector",
+        "count": 4
+    },
+    "total_time_ran": 554.021392,
+    "top_functions_timings": [
+        {
+            "name": "void duckdb::FilterSelectionSwitch<long>",
+            "time": 51.80100015199999
+        },
+        {
+            "name": "duckdb::JoinHashTable::GetRowPointers",
+            "time": 51.7455980128
+        },
+        {
+            "name": "clear_page_erms",
+            "time": 49.9173274192
+        }
+    ],
+    "user_space_time_spent_percentage": "45.09594882729211%",
+    "kernel_space_time_spent_percentage": "54.90405117270789%"
+}

@@ -1,0 +1,25 @@
+{
+    "queryNumber": 18,
+    "overhead_function": "duckdb::GroupedAggregateHashTable::FindOrCreateGroupsInternal",
+    "common_function": {
+        "name": "duckdb::ExpressionExecutor::Execute",
+        "count": 5
+    },
+    "total_time_ran": 1858.3150429999998,
+    "top_functions_timings": [
+        {
+            "name": "duckdb::GroupedAggregateHashTable::FindOrCreateGroupsInternal",
+            "time": 376.49462771180004
+        },
+        {
+            "name": "duckdb::JoinHashTable::GetRowPointers",
+            "time": 144.0194158325
+        },
+        {
+            "name": "void duckdb::TupleDataTemplatedGather<unsigned int>",
+            "time": 95.1457302016
+        }
+    ],
+    "user_space_time_spent_percentage": "54.98575498575499%",
+    "kernel_space_time_spent_percentage": "45.01424501424501%"
+}

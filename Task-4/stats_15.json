@@ -1,0 +1,25 @@
+{
+    "queryNumber": 15,
+    "overhead_function": "clear_page_erms",
+    "common_function": {
+        "name": "duckdb::ExpressionExecutor::Execute",
+        "count": 4
+    },
+    "total_time_ran": 353.160912,
+    "top_functions_timings": [
+        {
+            "name": "clear_page_erms",
+            "time": 35.98709693279999
+        },
+        {
+            "name": "_copy_to_iter",
+            "time": 21.719396088
+        },
+        {
+            "name": "duckdb::GroupedAggregateHashTable::FindOrCreateGroupsInternal",
+            "time": 19.211953612800002
+        }
+    ],
+    "user_space_time_spent_percentage": "47.77562862669246%",
+    "kernel_space_time_spent_percentage": "52.22437137330754%"
+}

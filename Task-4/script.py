@@ -154,6 +154,7 @@ def writeOutput(queryNumber : int):
     return fileName
 
 allStats = []
+
 def runScript():
     global dataRecords
     global jsonData
@@ -184,7 +185,7 @@ def overAllMostCommonFunction():
     
     for stat in allStats:
         commonFunc = stat['common_function']
-        counter[commonFunc] += 1
+        counter[commonFunc['name']] += 1
     commonFunc = counter.most_common(1)[0][0]
     
     overallStats['most_common_function'] = { 'name' : counter.most_common(1)[0][0] , 'count' : counter.most_common(1)[0][1]}

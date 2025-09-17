@@ -1,0 +1,25 @@
+{
+    "queryNumber": 6,
+    "overhead_function": "clear_page_erms",
+    "common_function": {
+        "name": "duckdb::ExpressionExecutor::Execute",
+        "count": 4
+    },
+    "total_time_ran": 453.858606,
+    "top_functions_timings": [
+        {
+            "name": "clear_page_erms",
+            "time": 63.81252000359999
+        },
+        {
+            "name": "_copy_to_iter",
+            "time": 39.3041552796
+        },
+        {
+            "name": "duckdb::Checksum",
+            "time": 21.2405827608
+        }
+    ],
+    "user_space_time_spent_percentage": "41.289592760180994%",
+    "kernel_space_time_spent_percentage": "58.710407239819006%"
+}
