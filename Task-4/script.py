@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
 import subprocess as sp
-import os
 from collections import Counter
 import json
 
@@ -12,26 +10,29 @@ recordFile="/home/darshan-pt7976/dev/ZohoTasks/Task-4/perf.data"
 reportFile="/home/darshan-pt7976/dev/ZohoTasks/Task-4/report.txt"
 statFile="/home/darshan-pt7976/dev/ZohoTasks/Task-4/stat.txt"
 
-queryNumber = 1
-if len(sys.argv) > 1:
-    qn = int(sys.argv[1])
-    if qn > 22:
-        print("Please enter a valid query number between 1 and 22")
-        exit(1)
-    queryNumber = qn
-else:
-    print("Please pass the query number to be executed")
-    exit(1)
+class DataRecord:
+    overhead:float
+    command : str
+    sharedObject:str
+    symbol : str
+    space : str
+    def __init__(self , overhead:float , command:str , sharedObject:str , symbol:str , space:str):
+        self.overhead = overhead
+        self.command = command
+        self.sharedObject = sharedObject
+        self.symbol = symbol
+        if space == '[.]':
+            self.space = 'user-space'
+        else:
+            self.space = 'kernel-space'
+    def __str__(self) -> str:
+        return f"Overhead : {self.overhead} , Command : {self.command} , SharedObject : {self.sharedObject} , Symbol : {self.symbol}"
 
 # stats dict
 jsonData = {}
+dataRecords : list[DataRecord] = []
 
-
-jsonData['query_number'] = queryNumber
-
-print(f"[INFO] Running query specified {queryNumber}")
-
-def runQuery():
+def runQuery(queryNumber : int):
     try:
         command = f'sudo perf stat -o {statFile} {duckDb} {databaseFile} -c \'pragma tpch({queryNumber})\''
         print(f'[INFO] Running command {command}')
@@ -56,37 +57,17 @@ def runQuery():
         print(f"[ERROR] --stdio failed {e.stderr}")
         exit(1)
 
+def getFunctionName(s : str):
+    index = s.rfind('(')
+    if index != -1:
+        without_args = s[:index]
+    else:
+        without_args = s
 
-runQuery()
-
-print('[SUCCESS] Queries ran successfully')
-print('[INFO] Running analysis on the reports generated')
-
-########################################
-#      Parsing and statistics          #
-########################################
-
-class DataRecord:
-    overhead:float
-    command : str
-    sharedObject:str
-    symbol : str
-    space : str
-    def __init__(self , overhead:float , command:str , sharedObject:str , symbol:str , space:str):
-        self.overhead = overhead
-        self.command = command
-        self.sharedObject = sharedObject
-        self.symbol = symbol
-        if space == '[.]':
-            self.space = 'user-space'
-        else:
-            self.space = 'kernel-space'
-    def __str__(self) -> str:
-        return f"Overhead : {self.overhead} , Command : {self.command} , SharedObject : {self.sharedObject} , Symbol : {self.symbol}"
-
-dataRecords : list[DataRecord] = []
+    return without_args
 
 def parseReportFile():
+    dataRecords : list[DataRecord] = []
     with open(reportFile) as file:
         for line in file:
             # starting lines are skipped
@@ -110,29 +91,22 @@ def parseReportFile():
                 l[3] = symbolSplit[1].replace('\n','')
                 l.append(symbolSplit[0])
             # creating a dataobject for storing
-            l[3] = l[3].split('(')[0]
+            # key = l[3]
+            l[3] = getFunctionName(l[3])
+            # value = l[3]
+            # dummyData[key] = value
             record = DataRecord(overhead=float(l[0]), command=l[1] , sharedObject=l[2] ,symbol=l[3] ,space=l[4])
             dataRecords.append(record)
-            
-parseReportFile()
-
-
-jsonData['hottest_function'] = dataRecords[0].symbol
-# print("The hottest function is : " , dataRecords[0].symbol)    
-
-counter = Counter()
-def maximumRanFunction():
+    return dataRecords
+             
+def mostCalledFunction(counter = Counter()):
     for record in dataRecords:
         counter[record.symbol]+=1
-    # most_common(1) lists the passed number of keys to give back
+    # most_common(1) gives us back the a list of tuples and 1 means it gives us only the first one
     # we need the most common one hence only one so we pass one
     # we get a tuple inside a list 
     # [('func name' , repetition_times)]
     jsonData['common_function'] = counter.most_common(1)[0][0]
-    # print("Most common Function that was executed is : " , counter.most_common(1))
-
-# most called function findings
-maximumRanFunction()
 
 # find the specifc time with time elapsed
 # Split the time 
@@ -143,25 +117,17 @@ def findTotalTimeRan():
             if not line.__contains__('time elapsed'):
                 continue
             splits = line.strip().split(None)
+            jsonData['total_time_ran'] = float(splits[0])* 1000
             return float(splits[0])
         return 0
 
-print('[INFO] Ran to check total time spent by top 3 functions')
-
-totalTimeRan = findTotalTimeRan()
-
-topHotspotFunctions = dataRecords[0:3]
-
-def calculateHotFunctionTimings():
+def calculateMostCalledFunctionsTimings(totalTimeRan : float, topFunctions : list[DataRecord]):
     hotFunctions = []
-    for record in topHotspotFunctions:
+    for record in topFunctions:
         currentRecordRanTime = (totalTimeRan * record.overhead) / 100
         currentRecordRanTime = currentRecordRanTime * 1000
         hotFunctions.append({ 'name' : record.symbol , 'time' : currentRecordRanTime })
-        # print(f"The function {record.symbol} ran for total of {currentRecordRanTime} ms.")
     jsonData['top_functions_timings'] = hotFunctions
-
-calculateHotFunctionTimings()
 
 # user and kernel space timing calculation
 def findTimeSpentOnEachSpace():
@@ -176,12 +142,113 @@ def findTimeSpentOnEachSpace():
     userSpacePercentage = userSpaceCount / length * 100
     kernelSpacePercentage = kernelSpaceCount / length * 100
 
-    jsonData['user_space_time_spent_percentage'] = userSpacePercentage
-    # print("User space time spent percentage : " , userSpacePercentage , " %")
-    jsonData['kernel_space_time_spent_percentage'] = kernelSpacePercentage
-    # print("Kernel space time spent percentage : " , kernelSpacePercentage , " %")
+    jsonData['user_space_time_spent_percentage'] = f'{userSpacePercentage}%'
+    jsonData['kernel_space_time_spent_percentage'] = f'{kernelSpacePercentage}%'
 
-findTimeSpentOnEachSpace()
 
-with open('stats.json' , 'w') as file:
-    json.dump(jsonData , file , indent=4)
+def writeOutput(queryNumber : int):
+    fileName = f'stats_{queryNumber}.json'
+    with open(f'stats_{queryNumber}.json' , 'w') as file:
+        json.dump(jsonData , file , indent=4)
+    return fileName
+
+allStats = []
+def runScript():
+    global dataRecords
+    global jsonData
+    for i in range(1 , 23):
+        jsonData = {} 
+        jsonData['queryNumber'] = i
+        print(f"[INFO] Running query for {i}")
+        runQuery(i)
+        print('[SUCCESS] Queries ran successfully')
+        print('[INFO] Running analysis on the reports generated')
+
+        dataRecords = parseReportFile()
+        jsonData['overhead_function'] = dataRecords[0].symbol
+
+        mostCalledFunction()
+        calculateMostCalledFunctionsTimings(findTotalTimeRan() , dataRecords[0:3])
+        findTimeSpentOnEachSpace()
+        fileName = writeOutput(i)
+        print(f'[SUCCESS] Analysis done for query number : {i} stats written to file {fileName}')
+        allStats.append(jsonData)
+
+    print('[SUCCESS] Analysis on the queries have been sucessfully completed')
+
+overallStats = {}
+
+def overAllMostCommonFunction():
+    counter = Counter()
+    
+    for stat in allStats:
+        commonFunc = stat['common_function']
+        counter[commonFunc] += 1
+    overallStats['most_common_function'] = counter.most_common(1)[0][0]
+
+
+def mostTimeSpentFunction():
+    time = 0
+    maxFun = ''
+    for stat in allStats:
+        for topFunc in stat['top_functions_timings']:
+            if topFunc['time'] > time:
+                time = topFunc['time']
+                maxFun = topFunc['name']
+    overallStats['max_execution_time_function'] = {'name' : maxFun , 'time' : time}
+
+
+def mostSpaceSpentQuery():
+    userSpace = 0
+    kernelSpace = 0
+    userSpaceQuery = 1
+    kernelSpaceQuery = 1
+    index = 1
+    for stat in allStats:
+        userSpaceStat = float(stat['user_space_time_spent_percentage'].replace('%' , ''))
+        kernelSpaceStat = float(stat['kernel_space_time_spent_percentage'].replace('%' , ''))
+        if userSpace < userSpaceStat:
+            userSpaceQuery = index
+            userSpace = userSpaceStat
+        if kernelSpace < kernelSpaceStat:
+            kernelSpaceQuery = index
+            kernelSpace = kernelSpaceStat
+        index += 1
+    
+    overallStats['most_user_space'] = { 'queryNumber' : userSpaceQuery , 'percent' : f'{userSpace}%'}
+    # print(f'Userspace most spent query is {userSpaceQuery} : {userSpace}%')
+    overallStats['most_kernel_space'] = { 'queryNumber' : kernelSpaceQuery , 'percent' : f'{kernelSpace}%'}
+    # print(f'Userspace most spent query is {kernelSpaceQuery} : {kernelSpace}%')
+
+def totalTimeRanCalculation():
+    min = float('inf')
+    maxQuery = 1
+    max = float('-inf')
+    minQuery = 1
+
+    for i in range(len(allStats)):
+        allStats[i]
+        print()
+
+    for i in range(len(allStats)):
+       if max < allStats[i]['total_time_ran']:
+           maxQuery = allStats[i]['queryNumber']
+           max = allStats[i]['total_time_ran']
+       if min > allStats[i]['total_time_ran']:
+           minQuery = allStats[i]['queryNumber']
+           min = allStats[i]['total_time_ran']
+    
+    overallStats['max_time_spent_query_number'] = {'queryNumber' : maxQuery , 'time' : max}
+    overallStats['min_time_spent_query_number'] = {'queryNumber' : minQuery , 'time':min}    
+
+
+def writeOverallStat():
+    with open('overall.json' , 'w') as file:
+        json.dump(overallStats , file , indent=4)
+
+runScript()
+overAllMostCommonFunction()
+mostTimeSpentFunction()
+mostSpaceSpentQuery()
+totalTimeRanCalculation()
+writeOverallStat()
