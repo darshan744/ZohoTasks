@@ -1,28 +1,33 @@
 {
     "queryNumber": 20,
     "overhead_function": "duckdb::JoinHashTable::GetRowPointers",
-    "cummulative_time_spen_in_ms": "6,181.39",
-    "avg_cpu_cores_used": "10.079",
-    "instruction_per_cycle": "0.39",
-    "user_space_time_spent_in_ms": 3021.3199999999997,
-    "kernel_space_time_spent_in_ms": 3110.506,
-    "common_function": {
-        "name": "duckdb::VectorOperations::Copy",
-        "count": 3
+    "cummulative_time_spen_in_ms": "2,544.63",
+    "avg_cpu_cores_used": "5.851",
+    "instruction_per_cycle": "1.24",
+    "total_number_of_branches": "2,247,519,013",
+    "total_branch_misses": {
+        "count": "59,813,596",
+        "percent": "2.66%"
     },
-    "total_time_ran_in_ms": 613.321477,
+    "user_space_time_spent_in_ms": 1609.24,
+    "kernel_space_time_spent_in_ms": 921.971,
+    "common_function": {
+        "name": "duckdb::Vector::Vector",
+        "count": 4
+    },
+    "total_time_ran_in_ms": 434.91412299999996,
     "top_functions_timings": [
         {
             "name": "duckdb::JoinHashTable::GetRowPointers",
-            "time": 44.89513211639999
-        },
-        {
-            "name": "clear_page_erms",
-            "time": 40.847210368199995
+            "time": 28.2259265827
         },
         {
             "name": "_copy_to_iter",
-            "time": 36.6766243246
+            "time": 26.094847379999997
+        },
+        {
+            "name": "clear_page_erms",
+            "time": 25.964373143099998
         }
     ]
 }

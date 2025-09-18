@@ -1,28 +1,33 @@
 {
     "queryNumber": 7,
     "overhead_function": "duckdb::JoinHashTable::GetRowPointers",
-    "cummulative_time_spen_in_ms": "10,160.46",
-    "avg_cpu_cores_used": "10.694",
-    "instruction_per_cycle": "0.35",
-    "user_space_time_spent_in_ms": 6663.061,
-    "kernel_space_time_spent_in_ms": 3439.256,
+    "cummulative_time_spen_in_ms": "4,627.66",
+    "avg_cpu_cores_used": "9.981",
+    "instruction_per_cycle": "0.81",
+    "total_number_of_branches": "2,504,346,294",
+    "total_branch_misses": {
+        "count": "84,658,429",
+        "percent": "3.38%"
+    },
+    "user_space_time_spent_in_ms": 3280.89,
+    "kernel_space_time_spent_in_ms": 1320.4180000000001,
     "common_function": {
         "name": "duckdb::FlatVector::VerifyFlatVector",
         "count": 6
     },
-    "total_time_ran_in_ms": 950.1298780000001,
+    "total_time_ran_in_ms": 463.660803,
     "top_functions_timings": [
         {
             "name": "duckdb::JoinHashTable::GetRowPointers",
-            "time": 88.6471176174
+            "time": 40.84851674430001
         },
         {
             "name": "clear_page_erms",
-            "time": 39.7154289004
+            "time": 17.6654765943
         },
         {
-            "name": "duckdb::JoinHashTable::InsertHashes",
-            "time": 28.503896339999997
+            "name": "_copy_to_iter",
+            "time": 14.466217053600001
         }
     ]
 }

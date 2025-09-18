@@ -117,7 +117,7 @@ def mostCalledFunction():
 def parseTaskClockLine(line : str):
     splits = line.strip().split(None)
     if len(splits) > 0:
-        jsonData['cummulative_time_spen_in_ms'] = float(splits[0])
+        jsonData['cummulative_time_spen_in_ms'] = splits[0]
     if len(splits) > 4:
         jsonData['avg_cpu_cores_used'] = splits[4]
 
@@ -132,17 +132,29 @@ def calculateUserSpaceTimeSpent(line : str , space : str):
     splits = line.strip().split(None)
     jsonData[f'{space}_space_time_spent_in_ms'] = float(splits[0]) * 1000
 
+def calculateBranchMisses(line : str):
+   splits = line.strip().split()
+   jsonData['total_branch_misses'] = {'count' : splits[0] , 'percent' : splits[3]}
+
+def totalBranches(line : str):
+    splits = line.strip().split()
+    jsonData['total_number_of_branches'] = splits[0]
+
 def genCpuStats():
     with open(statFile , 'r') as file:
         for line in file:
             if line.__contains__('task-clock'):
                 parseTaskClockLine(line)
-            if line.__contains__('insn per cycle'):
+            elif line.__contains__('insn per cycle'):
                 parseInsnPerCycle(line)
-            if line.__contains__('user'):
+            elif line.__contains__('user'):
                 calculateUserSpaceTimeSpent(line , 'user')
-            if line.__contains__('sys'):
+            elif line.__contains__('sys'):
                 calculateUserSpaceTimeSpent(line , 'kernel')
+            elif line.__contains__('branch-misses'):
+                calculateBranchMisses(line)
+            elif line.__contains__('branches'):
+                totalBranches(line)
 
 # find the specifc time with time elapsed
 # Split the time 
@@ -290,3 +302,4 @@ mostTimeSpentFunction()
 mostSpaceSpentQuery()
 totalTimeRanCalculation()
 writeOverallStat()
+#genCpuStats()

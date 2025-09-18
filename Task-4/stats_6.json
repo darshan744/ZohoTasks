@@ -1,28 +1,33 @@
 {
     "queryNumber": 6,
     "overhead_function": "clear_page_erms",
-    "cummulative_time_spen_in_ms": "3,429.58",
-    "avg_cpu_cores_used": "9.354",
-    "instruction_per_cycle": "0.41",
-    "user_space_time_spent_in_ms": 1222.07,
-    "kernel_space_time_spent_in_ms": 2187.0750000000003,
+    "cummulative_time_spen_in_ms": "1,527.05",
+    "avg_cpu_cores_used": "7.966",
+    "instruction_per_cycle": "0.98",
+    "total_number_of_branches": "1,021,368,883",
+    "total_branch_misses": {
+        "count": "32,789,983",
+        "percent": "3.21%"
+    },
+    "user_space_time_spent_in_ms": 661.079,
+    "kernel_space_time_spent_in_ms": 854.0210000000001,
     "common_function": {
         "name": "duckdb::ExpressionExecutor::Execute",
         "count": 4
     },
-    "total_time_ran_in_ms": 366.62719599999997,
+    "total_time_ran_in_ms": 191.69074999999998,
     "top_functions_timings": [
         {
             "name": "clear_page_erms",
-            "time": 36.6260568804
+            "time": 17.194660275
         },
         {
             "name": "_copy_to_iter",
-            "time": 33.0697730792
+            "time": 16.657926174999997
         },
         {
             "name": "duckdb::Checksum",
-            "time": 17.5247799688
+            "time": 10.773020149999999
         }
     ]
 }

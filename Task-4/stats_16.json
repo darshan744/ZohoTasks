@@ -1,28 +1,33 @@
 {
     "queryNumber": 16,
     "overhead_function": "duckdb::GroupedAggregateHashTable::FindOrCreateGroupsInternal",
-    "cummulative_time_spen_in_ms": "4,019.95",
-    "avg_cpu_cores_used": "11.030",
-    "instruction_per_cycle": "0.29",
-    "user_space_time_spent_in_ms": 3273.451,
-    "kernel_space_time_spent_in_ms": 740.3629999999999,
+    "cummulative_time_spen_in_ms": "1,737.21",
+    "avg_cpu_cores_used": "8.992",
+    "instruction_per_cycle": "0.64",
+    "total_number_of_branches": "774,808,043",
+    "total_branch_misses": {
+        "count": "30,223,616",
+        "percent": "3.90%"
+    },
+    "user_space_time_spent_in_ms": 1416.906,
+    "kernel_space_time_spent_in_ms": 319.788,
     "common_function": {
-        "name": "duckdb::FlatVector::VerifyFlatVector",
+        "name": "duckdb::ExpressionExecutor::Execute",
         "count": 5
     },
-    "total_time_ran_in_ms": 364.472195,
+    "total_time_ran_in_ms": 193.184506,
     "top_functions_timings": [
         {
             "name": "duckdb::GroupedAggregateHashTable::FindOrCreateGroupsInternal",
-            "time": 36.8481389145
+            "time": 19.994596370999997
         },
         {
             "name": "duckdb::JoinHashTable::GetRowPointers",
-            "time": 24.966345357499996
+            "time": 13.5035969694
         },
         {
-            "name": "void duckdb::TupleDataTemplatedGather<duckdb::uhugeint_t>",
-            "time": 18.2600569695
+            "name": "duckdb::FastMemcpy",
+            "time": 6.5489547534
         }
     ]
 }
