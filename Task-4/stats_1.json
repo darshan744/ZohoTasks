@@ -1,25 +1,28 @@
 {
     "queryNumber": 1,
     "overhead_function": "void duckdb::AggregateFunction::UnaryScatterUpdate<duckdb::SumState<long>, long, duckdb::(anonymous namespace)::IntegerSumOperation>",
+    "cummulative_time_spen_in_ms": "6,422.74",
+    "avg_cpu_cores_used": "10.373",
+    "instruction_per_cycle": "1.47",
+    "user_space_time_spent_in_ms": 4723.214,
+    "kernel_space_time_spent_in_ms": 1670.0539999999999,
     "common_function": {
         "name": "duckdb::ExpressionExecutor::Execute",
         "count": 5
     },
-    "total_time_ran": 690.0458550000001,
+    "total_time_ran_in_ms": 619.149933,
     "top_functions_timings": [
         {
             "name": "void duckdb::AggregateFunction::UnaryScatterUpdate<duckdb::SumState<long>, long, duckdb::(anonymous namespace)::IntegerSumOperation>",
-            "time": 64.31227368600001
+            "time": 60.8624384139
         },
         {
             "name": "void duckdb::AggregateFunction::UnaryScatterUpdate<duckdb::(anonymous namespace)::AvgState<duckdb::hugeint_t>, long, duckdb::(anonymous namespace)::IntegerAverageOperationHugeint>",
-            "time": 63.89824617300001
+            "time": 60.8005234206
         },
         {
             "name": "duckdb::PerfectAggregateHashTable::AddChunk",
-            "time": 49.269274046999996
+            "time": 51.946679378700004
         }
-    ],
-    "user_space_time_spent_percentage": "43.8717067583047%",
-    "kernel_space_time_spent_percentage": "56.1282932416953%"
+    ]
 }

@@ -1,25 +1,28 @@
 {
     "queryNumber": 11,
     "overhead_function": "duckdb::JoinHashTable::GetRowPointers",
+    "cummulative_time_spen_in_ms": "736.33",
+    "avg_cpu_cores_used": "8.716",
+    "instruction_per_cycle": "1.30",
+    "user_space_time_spent_in_ms": 537.5210000000001,
+    "kernel_space_time_spent_in_ms": 198.241,
     "common_function": {
         "name": "duckdb::ExpressionExecutor::Execute",
-        "count": 4
+        "count": 5
     },
-    "total_time_ran": 127.667095,
+    "total_time_ran_in_ms": 84.475784,
     "top_functions_timings": [
         {
             "name": "duckdb::JoinHashTable::GetRowPointers",
-            "time": 9.013296906999999
+            "time": 6.099151604799999
         },
         {
-            "name": "clear_page_erms",
-            "time": 6.332287912000001
+            "name": "void duckdb::FilterSelectionSwitch<long>",
+            "time": 4.384293189600001
         },
         {
             "name": "duckdb::VectorOperations::Hash",
-            "time": 5.630118889500001
+            "time": 3.8183054367999993
         }
-    ],
-    "user_space_time_spent_percentage": "52.733686067019406%",
-    "kernel_space_time_spent_percentage": "47.266313932980594%"
+    ]
 }

@@ -32,6 +32,11 @@ class DataRecord:
 jsonData = {}
 dataRecords : list[DataRecord] = []
 
+allStats = []
+
+overallStats = {}
+
+
 def runQuery(queryNumber : int):
     try:
         command = f'sudo perf stat -o {statFile} {duckDb} {databaseFile} -c \'pragma tpch({queryNumber})\''
@@ -109,6 +114,36 @@ def mostCalledFunction():
     # [('func name' , repetition_times)]
     jsonData['common_function'] = {'name' : counter.most_common(1)[0][0] , 'count' : counter.most_common(1)[0][1]}
 
+def parseTaskClockLine(line : str):
+    splits = line.strip().split(None)
+    if len(splits) > 0:
+        jsonData['cummulative_time_spen_in_ms'] = float(splits[0])
+    if len(splits) > 4:
+        jsonData['avg_cpu_cores_used'] = splits[4]
+
+def parseInsnPerCycle(line:str):
+    splits = line.strip().split(None)
+    if len(splits) > 3:
+        jsonData['instruction_per_cycle'] = splits[3]
+        # print(splits)
+        print(jsonData)
+
+def calculateUserSpaceTimeSpent(line : str , space : str):
+    splits = line.strip().split(None)
+    jsonData[f'{space}_space_time_spent_in_ms'] = float(splits[0]) * 1000
+
+def genCpuStats():
+    with open(statFile , 'r') as file:
+        for line in file:
+            if line.__contains__('task-clock'):
+                parseTaskClockLine(line)
+            if line.__contains__('insn per cycle'):
+                parseInsnPerCycle(line)
+            if line.__contains__('user'):
+                calculateUserSpaceTimeSpent(line , 'user')
+            if line.__contains__('sys'):
+                calculateUserSpaceTimeSpent(line , 'kernel')
+
 # find the specifc time with time elapsed
 # Split the time 
 # the first part is the total seconds ran by the program
@@ -118,7 +153,7 @@ def findTotalTimeRan():
             if not line.__contains__('time elapsed'):
                 continue
             splits = line.strip().split(None)
-            jsonData['total_time_ran'] = float(splits[0])* 1000
+            jsonData['total_time_ran_in_ms'] = float(splits[0])* 1000
             return float(splits[0])
         return 0
 
@@ -146,14 +181,11 @@ def findTimeSpentOnEachSpace():
     jsonData['user_space_time_spent_percentage'] = f'{userSpacePercentage}%'
     jsonData['kernel_space_time_spent_percentage'] = f'{kernelSpacePercentage}%'
 
-
 def writeOutput(queryNumber : int):
     fileName = f'stats_{queryNumber}.json'
     with open(f'stats_{queryNumber}.json' , 'w') as file:
         json.dump(jsonData , file , indent=4)
     return fileName
-
-allStats = []
 
 def runScript():
     global dataRecords
@@ -168,17 +200,14 @@ def runScript():
 
         dataRecords = parseReportFile()
         jsonData['overhead_function'] = dataRecords[0].symbol
-
+        genCpuStats()
         mostCalledFunction()
         calculateMostCalledFunctionsTimings(findTotalTimeRan() , dataRecords[0:3])
-        findTimeSpentOnEachSpace()
         fileName = writeOutput(i)
         print(f'[SUCCESS] Analysis done for query number : {i} stats written to file {fileName}')
         allStats.append(jsonData)
 
     print('[SUCCESS] Analysis on the queries have been sucessfully completed')
-
-overallStats = {}
 
 def overAllMostCommonFunction():
     counter = Counter()
@@ -209,8 +238,13 @@ def mostSpaceSpentQuery():
     kernelSpaceQuery = 1
     index = 1
     for stat in allStats:
-        userSpaceStat = float(stat['user_space_time_spent_percentage'].replace('%' , ''))
-        kernelSpaceStat = float(stat['kernel_space_time_spent_percentage'].replace('%' , ''))
+        # This gives us with the total time spent on each
+        # space across all cores meaning that 
+        # It gives us the time spent if the code is executed
+        # on a single thread/process and not parellel
+        # Hence we get time above the overall time spent
+        userSpaceStat = stat['user_space_time_spent_in_ms']
+        kernelSpaceStat = stat['kernel_space_time_spent_in_ms']
         if userSpace < userSpaceStat:
             userSpaceQuery = index
             userSpace = userSpaceStat
@@ -219,9 +253,9 @@ def mostSpaceSpentQuery():
             kernelSpace = kernelSpaceStat
         index += 1
     
-    overallStats['most_user_space'] = { 'queryNumber' : userSpaceQuery , 'percent' : f'{userSpace}%'}
+    overallStats['most_user_space'] = { 'queryNumber' : userSpaceQuery , 'time_spent_in_ms' : userSpace}
     # print(f'Userspace most spent query is {userSpaceQuery} : {userSpace}%')
-    overallStats['most_kernel_space'] = { 'queryNumber' : kernelSpaceQuery , 'percent' : f'{kernelSpace}%'}
+    overallStats['most_kernel_space'] = { 'queryNumber' : kernelSpaceQuery , 'time_spent_in_ms' : kernelSpace}
     # print(f'Userspace most spent query is {kernelSpaceQuery} : {kernelSpace}%')
 
 def totalTimeRanCalculation():
@@ -235,12 +269,12 @@ def totalTimeRanCalculation():
         print()
 
     for i in range(len(allStats)):
-       if max < allStats[i]['total_time_ran']:
+       if max < allStats[i]['total_time_ran_in_ms']:
            maxQuery = allStats[i]['queryNumber']
-           max = allStats[i]['total_time_ran']
-       if min > allStats[i]['total_time_ran']:
+           max = allStats[i]['total_time_ran_in_ms']
+       if min > allStats[i]['total_time_ran_in_ms']:
            minQuery = allStats[i]['queryNumber']
-           min = allStats[i]['total_time_ran']
+           min = allStats[i]['total_time_ran_in_ms']
     
     overallStats['max_time_spent_query_number'] = {'queryNumber' : maxQuery , 'time' : max}
     overallStats['min_time_spent_query_number'] = {'queryNumber' : minQuery , 'time':min}    
@@ -248,6 +282,7 @@ def totalTimeRanCalculation():
 def writeOverallStat():
     with open('overall.json' , 'w') as file:
         json.dump(overallStats , file , indent=4)
+
 
 runScript()
 overAllMostCommonFunction()

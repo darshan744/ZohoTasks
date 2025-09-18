@@ -1,25 +1,28 @@
 {
     "queryNumber": 18,
     "overhead_function": "duckdb::GroupedAggregateHashTable::FindOrCreateGroupsInternal",
+    "cummulative_time_spen_in_ms": "18,741.98",
+    "avg_cpu_cores_used": "13.386",
+    "instruction_per_cycle": "0.38",
+    "user_space_time_spent_in_ms": 15593.787,
+    "kernel_space_time_spent_in_ms": 3094.266,
     "common_function": {
         "name": "duckdb::ExpressionExecutor::Execute",
         "count": 5
     },
-    "total_time_ran": 1858.3150429999998,
+    "total_time_ran_in_ms": 1400.118809,
     "top_functions_timings": [
         {
             "name": "duckdb::GroupedAggregateHashTable::FindOrCreateGroupsInternal",
-            "time": 376.49462771180004
+            "time": 290.8046766293
         },
         {
             "name": "duckdb::JoinHashTable::GetRowPointers",
-            "time": 144.0194158325
+            "time": 110.04933838740001
         },
         {
             "name": "void duckdb::TupleDataTemplatedGather<unsigned int>",
-            "time": 95.1457302016
+            "time": 72.6661661871
         }
-    ],
-    "user_space_time_spent_percentage": "54.98575498575499%",
-    "kernel_space_time_spent_percentage": "45.01424501424501%"
+    ]
 }

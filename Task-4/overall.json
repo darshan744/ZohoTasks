@@ -1,27 +1,27 @@
 {
     "most_common_function": {
         "name": "duckdb::ExpressionExecutor::Execute",
-        "count": 11
+        "count": 12
     },
     "max_execution_time_function": {
         "name": "duckdb::GroupedAggregateHashTable::FindOrCreateGroupsInternal",
-        "time": 376.49462771180004,
+        "time": 290.8046766293,
         "queryNumber": 18
     },
     "most_user_space": {
-        "queryNumber": 16,
-        "percent": "56.23501199040767%"
+        "queryNumber": 18,
+        "time_spent_in_ms": 15593.787
     },
     "most_kernel_space": {
-        "queryNumber": 6,
-        "percent": "58.710407239819006%"
+        "queryNumber": 7,
+        "time_spent_in_ms": 3439.256
     },
     "max_time_spent_query_number": {
-        "queryNumber": 18,
-        "time": 1858.3150429999998
+        "queryNumber": 9,
+        "time": 1661.698997
     },
     "min_time_spent_query_number": {
         "queryNumber": 11,
-        "time": 127.667095
+        "time": 84.475784
     }
 }
